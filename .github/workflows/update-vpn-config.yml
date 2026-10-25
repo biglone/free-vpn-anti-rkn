@@ -169,8 +169,8 @@ jobs:
               if not nodes:
                   continue
               target = output_dir / source.name
-              payload = ("\\n".join(nodes) + "\\n").encode("utf-8")
-              target.write_text(base64.b64encode(payload).decode("ascii") + "\\n", encoding="ascii")
+              payload = ("\n".join(nodes) + "\n").encode("utf-8")
+              target.write_text(base64.b64encode(payload).decode("ascii") + "\n", encoding="ascii")
               print(f"  {target}: {len(nodes)} nodes")
           PY
 
