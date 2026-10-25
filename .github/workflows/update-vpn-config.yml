@@ -151,6 +151,29 @@ jobs:
           echo '}' >> configs/counts.json
           echo "  totalUnique: $total servers (no duplicates)"
 
+      - name: Generate Shadowrocket-compatible Base64 subscriptions
+        run: |
+          mkdir -p configs/shadowrocket
+          python3 - <<'PY'
+          import base64
+          import re
+          from pathlib import Path
+
+          output_dir = Path("configs/shadowrocket")
+          for source in sorted(Path("configs").glob("*.txt")):
+              nodes = [
+                  line.strip()
+                  for line in source.read_text(encoding="utf-8").splitlines()
+                  if re.match(r"^(vless|trojan|vmess|ss|hy2)://", line.strip(), re.IGNORECASE)
+              ]
+              if not nodes:
+                  continue
+              target = output_dir / source.name
+              payload = ("\\n".join(nodes) + "\\n").encode("utf-8")
+              target.write_text(base64.b64encode(payload).decode("ascii") + "\\n", encoding="ascii")
+              print(f"  {target}: {len(nodes)} nodes")
+          PY
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
